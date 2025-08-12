@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sevdesk' => [
+        'token' => env('SEVDESK_API_TOKEN'),
+    ],
+
 ];

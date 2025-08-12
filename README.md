@@ -64,3 +64,157 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# SevDesk Integration
+
+This Laravel application integrates with the SevDesk API to fetch and display transactions and invoices in read-only Backpack CRUD interfaces.
+
+## Features
+
+- **Transaction Model**: Laravel model with migration for storing transaction data
+- **Invoice Model**: Laravel model with migration for storing invoice data
+- **SevDesk Service**: Service class for fetching transactions and invoices from SevDesk API
+- **Import Commands**: Artisan commands to import transactions and invoices from SevDesk
+- **Backpack CRUD**: Read-only admin interfaces for viewing transactions and invoices
+
+## Installation
+
+1. Clone the repository
+2. Install dependencies: `composer install`
+3. Copy `.env.example` to `.env` and configure your database
+4. Add SevDesk API token to `.env`: `SEVDESK_API_TOKEN=your_token_here`
+5. Run migrations: `php artisan migrate`
+6. Seed sample data: `php artisan db:seed`
+7. Start the development server: `php artisan serve`
+
+## Usage
+
+### Importing Transactions from SevDesk
+
+To import transactions from the SevDesk API:
+
+```bash
+php artisan import:sevdesk-transactions
+```
+
+This command will:
+- Fetch transactions from `https://my.sevdesk.de/api/v1/Transaction`
+- Use the configured bearer token for authentication
+- Import new transactions (skip existing ones)
+- Display import statistics
+
+### Importing Invoices from SevDesk
+
+To import invoices from the SevDesk API:
+
+```bash
+php artisan import:sevdesk-invoices
+```
+
+This command will:
+- Fetch invoices from `https://my.sevdesk.de/api/v1/Invoice`
+- Use the configured bearer token for authentication
+- Import new invoices or update existing ones
+- Display import statistics
+
+### Accessing the Admin Panel
+
+1. Visit `http://localhost:8000/admin`
+2. Login with your admin credentials
+3. Navigate to "Transactions" or "Invoices" in the menu
+4. View the list of imported data
+
+## Database Schema
+
+### Transactions Table
+
+The `transactions` table contains the following columns:
+
+- `id` - Primary key
+- `sevdesk_id` - SevDesk transaction ID
+- `amount` - Transaction amount
+- `currency` - Currency code (nullable)
+- `purpose` - Transaction purpose/description (nullable)
+- `created_at` - Record creation timestamp
+- `updated_at` - Record update timestamp
+
+### Invoices Table
+
+The `invoices` table contains the following columns:
+
+- `id` - Primary key
+- `sevdesk_id` - SevDesk invoice ID (unique)
+- `invoice_number` - Invoice number (nullable)
+- `invoice_date` - Invoice date (nullable)
+- `customer_name` - Customer name (nullable)
+- `currency` - Currency code (nullable)
+- `total_amount` - Total invoice amount (decimal 15,2, nullable)
+- `paid_amount` - Paid amount (decimal 15,2, nullable)
+- `status` - Invoice status (nullable)
+- `created_at` - Record creation timestamp
+- `updated_at` - Record update timestamp
+
+## Configuration
+
+The SevDesk API configuration is stored in environment variables:
+
+- Base URL: `https://my.sevdesk.de/api/v1`
+- Bearer Token: Set in `.env` as `SEVDESK_API_TOKEN`
+- Config access: `config('services.sevdesk.token')`
+
+## API Integration
+
+The `SevDeskService` class handles:
+- HTTP requests to the SevDesk API
+- Authentication using bearer token from environment
+- Error handling and logging
+- Response parsing for both transactions and invoices
+
+## CRUD Interfaces
+
+Both Backpack CRUD interfaces are configured as read-only:
+- List view shows all records with pagination
+- Show view displays detailed information
+- Create, update, and delete operations are disabled
+- Columns are properly labeled and formatted
+
+### Transaction Fields Mapping
+
+- `id` → `sevdesk_id`
+- `amount` → `amount`
+- `currency` → `currency`
+- `purpose` → `purpose`
+
+### Invoice Fields Mapping
+
+- `id` → `sevdesk_id`
+- `invoiceNumber` → `invoice_number`
+- `invoiceDate` → `invoice_date`
+- `addressName` → `customer_name`
+- `currency` → `currency`
+- `sumGross` → `total_amount`
+- `paidAmount` → `paid_amount`
+- `status` → `status`
+
+## Sample Data
+
+The application includes seeders with sample data for testing purposes:
+
+```bash
+# Seed transactions only
+php artisan db:seed --class=TransactionSeeder
+
+# Seed invoices only
+php artisan db:seed --class=InvoiceSeeder
+
+# Seed all data
+php artisan db:seed
+```
+
+## Troubleshooting
+
+- Check Laravel logs for API errors: `tail -f storage/logs/laravel.log`
+- Verify database connection and migrations
+- Ensure Backpack is properly installed and configured
+- Check API token validity if import fails
+- Verify environment variable `SEVDESK_API_TOKEN` is set correctly
