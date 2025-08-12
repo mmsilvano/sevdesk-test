@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Requests\InvoiceRequest;
+use Backpack\CRUD\app\Http\Controllers\CrudController;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+
+/**
+ * Class InvoiceCrudController
+ * @package App\Http\Controllers\Admin
+ * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
+ */
+class InvoiceCrudController extends CrudController
+{
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+
+    /**
+     * Configure the CrudPanel object. Apply settings to all operations.
+     * 
+     * @return void
+     */
+    public function setup()
+    {
+        CRUD::setModel(\App\Models\Invoice::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/invoice');
+        CRUD::setEntityNameStrings('transaction', 'transactions');
+    }
+
+    /**
+     * Define what happens when the List operation is loaded.
+     * 
+     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
+     * @return void
+     */
+    protected function setupListOperation()
+    {
+        CRUD::column('id')->label('ID');
+        CRUD::column('sevdesk_id')->label('SevDesk ID');
+        CRUD::column('invoice_number')->label('Number');
+        CRUD::column('invoice_date')->label('Date')->type('date');
+        CRUD::column('customer_name')->label('Customer Name');
+        CRUD::column('currency')->label('Currency');
+        CRUD::column('total_amount')->label('Total Amount')->type('number')->decimals(2);
+        CRUD::column('paid_amount')->label('Paid Amount')->type('number')->decimals(2);
+        CRUD::column('status')->label('Status');
+        CRUD::column('created_at')->label('Created At')->type('datetime');
+
+        // Disable create, update, and delete buttons
+        CRUD::denyAccess('create');
+        CRUD::denyAccess('update');
+        CRUD::denyAccess('delete');
+    }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        CRUD::column('id')->label('ID');
+        CRUD::column('sevdesk_id')->label('SevDesk ID');
+        CRUD::column('invoice_number')->label('Number');
+        CRUD::column('invoice_date')->label('Date')->type('date');
+        CRUD::column('customer_name')->label('Customer Name');
+        CRUD::column('currency')->label('Currency');
+        CRUD::column('total_amount')->label('Total Amount')->type('number')->decimals(2);
+        CRUD::column('paid_amount')->label('Paid Amount')->type('number')->decimals(2);
+        CRUD::column('status')->label('Status');
+        CRUD::column('created_at')->label('Created At')->type('datetime');
+        CRUD::column('updated_at')->label('Updated At')->type('datetime');
+
+        // Disable edit and delete buttons
+        CRUD::denyAccess('update');
+        CRUD::denyAccess('delete');
+    }
+}
