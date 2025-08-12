@@ -14,33 +14,34 @@ class SevDeskService
      *
      * @return array|null
      */
+    // In your SevDeskService.php or similar service class
+
     public function fetchTransactions(): ?array
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->getBearerToken(),
+                'Authorization' => config('services.sevdesk.token'),
                 'Content-Type' => 'application/json',
-            ])->get($this->baseUrl . '/Transaction');
+            ])->get('https://my.sevdesk.de/api/v1/CheckAccountTransaction');
 
             if ($response->successful()) {
-                return $response->json();
+                return $response->json('objects'); // return only the objects array
             }
 
-            Log::error('SevDesk API error', [
+            Log::error('SevDesk API error fetching transactions', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-
             return null;
         } catch (\Exception $e) {
-            Log::error('SevDesk API exception', [
+            Log::error('SevDesk API exception fetching transactions', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-
             return null;
         }
     }
+
 
     /**
      * Fetch invoices from SevDesk API
